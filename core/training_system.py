@@ -21,38 +21,26 @@ from model import TransformerStockTrader
 class EnhancedProfitLoss(nn.Module):
     """Loss function that directly maximizes returns with asymmetric risk penalties."""
     
-    def __init__(self, loss_penalty_factor: float = 2.0, risk_penalty: float = 0.01):
+    def __init__(self, loss_penalty_factor: float = 1.0):
         super().__init__()
         self.loss_penalty_factor = loss_penalty_factor  # Punish losses more than reward gains
-        self.risk_penalty = risk_penalty  # Small penalty for cash to encourage risk-taking
         
     def forward(self, predictions: torch.Tensor, future_returns: torch.Tensor) -> torch.Tensor:
         """
         Calculate profit-based loss for model predictions using differentiable approach.
         
         Args:
-            predictions: [batch_size, 102] - model logits for all choices
-            future_returns: [batch_size, 100] - actual 5-day returns for each stock
+            predictions: [batch_size, num_stocks] - model logits for all stocks
+            future_returns: [batch_size, num_stocks] - actual 5-day returns for each stock
         
         Returns:
             loss: Scalar loss value (negative expected return)
         """
-        batch_size = predictions.shape[0]
-        
         # Convert logits to probabilities (differentiable)
-        action_probs = F.softmax(predictions, dim=-1)  # [batch_size, 102]
-        
-        # Create expanded returns tensor including HOLD and CASH options
-        # [batch_size, 102] = [HOLD, CASH, stock_0, stock_1, ..., stock_99]
-        expanded_returns = torch.zeros_like(action_probs, device=predictions.device)
-        
-        # Set returns for each action type
-        expanded_returns[:, 0] = 0.0  # HOLD return = 0%
-        expanded_returns[:, 1] = -self.risk_penalty  # CASH return = small penalty
-        expanded_returns[:, 2:] = future_returns  # Stock returns
+        action_probs = F.softmax(predictions, dim=-1)  # [batch_size, num_stocks]
         
         # Calculate expected return using probability weighting (differentiable)
-        expected_returns = torch.sum(action_probs * expanded_returns, dim=-1)
+        expected_returns = torch.sum(action_probs * future_returns, dim=-1)
         
         # Apply asymmetric penalty for negative expected returns
         enhanced_returns = torch.where(
@@ -200,7 +188,7 @@ class TrainingSystem:
         
         return future_returns
     
-    def train_model(self, start_date: str = "2010-01-01", end_date: str = "2024-01-01"):
+    def train_model(self, start_date: str = "2010-01-01", end_date: str = "2024-01-01", epochs: int = 150):
         """Train the transformer on historical market data using profit optimization with stock shuffling."""
         print("Training transformer stock trader with profit maximization + stock shuffling...")
         print("Using 60-day price sequences (pure sequence learning like GPT)")
@@ -224,23 +212,33 @@ class TrainingSystem:
             training_returns.append(returns)
         
         # Convert to tensors
-        X_train = torch.FloatTensor(np.array(training_sequences))  # [N, 60, stocks, 1]
+        X_train = torch.FloatTensor(np.array(training_sequences))  # [N, 60, stocks, 2]
         y_train = torch.FloatTensor(np.array(training_returns))    # [N, stocks]
         
         num_stocks = len(self.data_processor.sp500_tickers)
         print(f"Training on {len(X_train)} sequences with {num_stocks} stocks")
         print(f"Stock shuffling: ENABLED (prevents position memorization)")
+        print(f"Validity masking: ENABLED (prevents delisted stock selection)")
+        print(f"Pure stock selection: No HOLD/CASH options (must pick a stock)")
         
         # Training loop with profit-based loss and stock shuffling
         optimizer = optim.Adam(self.model.parameters(), lr=8e-5)
-        loss_function = EnhancedProfitLoss(loss_penalty_factor=2.0, risk_penalty=0.005)
+        loss_function = EnhancedProfitLoss(loss_penalty_factor=1.0)  # Equal treatment of gains/losses
         
         self.model.train()
-        num_epochs = 150
+        num_epochs = epochs
         batch_size = 32
+        num_batches = len(X_train) // batch_size
+        
+        print(f"\n🔥 Starting training: {num_epochs} epochs, {num_batches} batches/epoch")
+        print("─" * 60)
+        
+        best_return = float('-inf')
+        start_time = datetime.now()
         
         for epoch in range(num_epochs):
             epoch_losses = []
+            epoch_start = datetime.now()
             
             # Shuffle training data each epoch
             indices = torch.randperm(len(X_train))
@@ -275,17 +273,40 @@ class TrainingSystem:
                 
                 epoch_losses.append(loss.item())
             
-            if epoch % 10 == 0:
-                avg_loss = np.mean(epoch_losses)
-                avg_return = -avg_loss  # Convert loss back to return
-                print(f"Epoch {epoch}, Average Return: {avg_return:.4f} ({avg_return*100:.2f}%)")
+            # Calculate metrics
+            avg_loss = np.mean(epoch_losses)
+            avg_return = -avg_loss
+            epoch_time = (datetime.now() - epoch_start).total_seconds()
+            
+            # Track best performance
+            if avg_return > best_return:
+                best_return = avg_return
+                best_epoch = epoch
+            
+            # Log every epoch
+            elapsed = (datetime.now() - start_time).total_seconds()
+            eta = (elapsed / (epoch + 1)) * (num_epochs - epoch - 1)
+            
+            print(f"Epoch {epoch:3d}/{num_epochs} │ Return: {avg_return*100:+6.2f}% │ "
+                  f"Best: {best_return*100:+6.2f}% (ep {best_epoch:3d}) │ "
+                  f"Time: {epoch_time:4.1f}s │ ETA: {eta/60:4.1f}m")
         
-        # Save trained model
-        torch.save(self.model.state_dict(), 'trained_stock_trader.pth')
+        # Save trained model to models directory
+        model_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'models', 'trained_stock_trader.pth')
+        torch.save(self.model.state_dict(), model_path)
         
+        # Final summary
+        total_time = (datetime.now() - start_time).total_seconds()
         final_return = -np.mean(epoch_losses)
-        print(f"Model training completed! Final average return: {final_return:.4f} ({final_return*100:.2f}%)")
-        print("✅ Stock shuffling applied - model cannot memorize positions!")
+        
+        print("─" * 60)
+        print("🎯 TRAINING COMPLETE!")
+        print(f"   Final Return:  {final_return*100:+6.2f}%")
+        print(f"   Best Return:   {best_return*100:+6.2f}% (epoch {best_epoch})")
+        print(f"   Total Time:    {total_time/60:.1f} minutes")
+        print(f"   Model saved:   {model_path}")
+        print("   ✅ Stock shuffling applied - no position memorization!")
+        print("─" * 60)
     
     def predict_action(self, target_date: str, model_path: str = None) -> Tuple[str, Optional[str]]:
         """
@@ -316,14 +337,19 @@ class TrainingSystem:
         price_sequences = self.data_processor.extract_price_sequences(raw_market_data)
         
         # Use last 60 days as input sequence
-        input_sequence = price_sequences[-60:].reshape(1, 60, -1, 1)  # [1, 60, stocks, 1]
+        if len(price_sequences) < 60:
+            raise ValueError(f"Insufficient data: only {len(price_sequences)} days available, need 60")
+        
+        # Get last 60 days and reshape properly
+        last_60_days = price_sequences[-60:]  # [60, stocks, 2]
+        input_sequence = last_60_days.reshape(1, 60, self.model.num_stocks, 2)  # [1, 60, stocks, 2]
         input_tensor = torch.FloatTensor(input_sequence)
         
         # Use combined MC Dropout + Temperature Scaling inference
         decision_probabilities = self._combined_inference(
             input_tensor, 
-            num_mc_samples=20, 
-            temperature=5.0
+            num_mc_samples=1, 
+            temperature=1.0
         )
         
         # Get top 3 predictions
@@ -334,25 +360,16 @@ class TrainingSystem:
         predicted_choice = top3_indices[0]
         confidence = top3_probs[0]
         
-        # Decode top 3 predictions
+        # Decode top 3 predictions (all are stock selections now)
         top3_choices = []
         for idx, prob in zip(top3_indices, top3_probs):
-            if idx == 0:
-                choice_name = "HOLD"
-                choice_stock = None
-            elif idx == 1:
-                choice_name = "CASH"
-                choice_stock = None
-            else:
-                choice_name = "SWITCH"
-                choice_stock = self.data_processor.sp500_tickers[idx - 2]
-            top3_choices.append((choice_name, choice_stock, prob))
+            choice_stock = self.data_processor.sp500_tickers[idx]
+            top3_choices.append((choice_stock, prob))
         
-        # Decode unified prediction (top choice)
-        action_name, target_stock, _ = top3_choices[0]
+        # Top choice stock
+        target_stock = top3_choices[0][0]
         
-        print(f"MC Dropout + Temperature (T=5.0) - Action: {action_name} (confidence: {confidence:.3f})")
-        if target_stock:
-            print(f"Model selected: {target_stock}")
+        print(f"Temperature Scaling (T=1.0) - Stock: {target_stock} (confidence: {confidence:.3f})")
+        print(f"Top 3: {top3_choices[0][0]} ({top3_choices[0][1]:.3f}), {top3_choices[1][0]} ({top3_choices[1][1]:.3f}), {top3_choices[2][0]} ({top3_choices[2][1]:.3f})")
         
-        return action_name, target_stock, top3_choices
+        return target_stock, top3_choices

@@ -96,38 +96,45 @@ class MarketDataProcessor:
     
     def extract_price_sequences(self, market_data: pd.DataFrame) -> np.ndarray:
         """
-        Extract normalized price sequences for pure sequence learning (like GPT).
-        No hand-crafted features - just price history.
+        Extract normalized price sequences with validity masks.
         
-        Returns: [days, stocks, 1] - normalized prices for each stock
+        Returns: [days, stocks, 2] - normalized prices + validity mask for each stock
+                 Feature 0: normalized price
+                 Feature 1: validity mask (1=valid data, 0=no data/delisted)
         """
         num_stocks = len(self.sp500_tickers)
         num_days = len(market_data)
         
-        # Initialize price matrix: [days, stocks, 1]
-        price_matrix = np.zeros((num_days, num_stocks, 1))
+        # Initialize price matrix: [days, stocks, 2] (price + mask)
+        price_matrix = np.zeros((num_days, num_stocks, 2))
         
         for i, ticker in enumerate(self.sp500_tickers):
             try:
                 # Extract price series for this stock
                 close_prices = market_data[ticker]['Close'].values
                 
+                # Create validity mask: 1 where we have valid data, 0 otherwise
+                valid_mask = np.isfinite(close_prices).astype(float)
+                
                 # Skip if insufficient data
-                if len(close_prices) < 2:
+                if len(close_prices) < 2 or not np.any(valid_mask):
+                    # Leave as zeros with mask=0
                     continue
                 
                 # Normalize prices: percentage change from first valid price
-                first_valid_price = close_prices[np.isfinite(close_prices)][0] if np.any(np.isfinite(close_prices)) else 1.0
-                normalized_prices = (close_prices - first_valid_price) / first_valid_price
+                first_valid_price = close_prices[np.isfinite(close_prices)][0]
+                normalized_prices = np.where(
+                    valid_mask,
+                    (close_prices - first_valid_price) / first_valid_price,
+                    0.0  # Zero for invalid prices
+                )
                 
-                # Store normalized prices
+                # Store normalized prices and validity mask
                 price_matrix[:, i, 0] = normalized_prices
+                price_matrix[:, i, 1] = valid_mask
                 
             except Exception as e:
                 print(f"Warning: Could not process {ticker}: {e}")
                 continue
-        
-        # Remove NaN and return normalized price sequences
-        price_matrix = np.nan_to_num(price_matrix, nan=0.0)
         
         return price_matrix

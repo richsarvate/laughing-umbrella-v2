@@ -11,7 +11,7 @@ from transformers import GPT2Config, GPT2Model
 class TransformerStockTrader(nn.Module):
     """Minimal transformer model for unified stock trading decisions."""
     
-    def __init__(self, num_stocks: int = 500, features_per_stock: int = 1, hidden_size: int = 256):
+    def __init__(self, num_stocks: int = 500, features_per_stock: int = 2, hidden_size: int = 256):
         super().__init__()
         self.num_stocks = num_stocks
         self.features_per_stock = features_per_stock
@@ -34,13 +34,13 @@ class TransformerStockTrader(nn.Module):
         )
         self.transformer_backbone = GPT2Model(transformer_config)
         
-        # Unified decision head: HOLD(0) + CASH(1) + all stocks(2+)
-        num_total_choices = 2 + num_stocks  # HOLD, CASH, + 500 stocks
+        # Stock selection head: directly choose best stock
+        num_total_choices = num_stocks  # One choice per stock
         self.unified_decision_head = nn.Sequential(
             nn.Dropout(0.2),       # Input dropout to decision head
             nn.Linear(hidden_size, 64),
             nn.ReLU(),
-            nn.Dropout(0.25),      # Increased dropout for 502 choices
+            nn.Dropout(0.25),      # Increased dropout
             nn.Linear(64, num_total_choices)
         )
         
@@ -49,8 +49,9 @@ class TransformerStockTrader(nn.Module):
         Forward pass through transformer.
         Args:
             market_features: [batch_size, sequence_length, num_stocks, features_per_stock]
+                            where features_per_stock = 2 (price + validity mask)
         Returns:
-            decision_logits: [batch_size, 502] - probabilities for HOLD/CASH/all stocks
+            decision_logits: [batch_size, num_stocks] - probabilities for each stock
         """
         batch_size, seq_len, num_stocks, features = market_features.shape
         
