@@ -177,3 +177,47 @@ class MarketDataProcessor:
         feature_matrix = standardized.reshape(original_shape)
         
         return feature_matrix
+    
+    def extract_price_sequences(self, market_data: pd.DataFrame) -> np.ndarray:
+        """
+        Extract normalized price sequences for pure sequence learning (like GPT).
+        No hand-crafted features - just price history.
+        
+        Returns: [days, stocks, 1] - normalized prices for each stock
+        """
+        num_stocks = len(self.sp500_tickers)
+        num_days = len(market_data)
+        
+        # Initialize price matrix: [days, stocks, 1]
+        price_matrix = np.zeros((num_days, num_stocks, 1))
+        
+        for i, ticker in enumerate(self.sp500_tickers):
+            try:
+                # Extract price series for this stock
+                close_prices = market_data[ticker]['Close'].values
+                
+                # Skip if insufficient data
+                if len(close_prices) < 2:
+                    continue
+                
+                # Normalize prices: percentage change from first valid price
+                first_valid_price = close_prices[np.isfinite(close_prices)][0] if np.any(np.isfinite(close_prices)) else 1.0
+                normalized_prices = (close_prices - first_valid_price) / first_valid_price
+                
+                # Store normalized prices
+                price_matrix[:, i, 0] = normalized_prices
+                
+            except Exception as e:
+                print(f"Warning: Could not process {ticker}: {e}")
+                continue
+        
+        # Remove NaN
+        price_matrix = np.nan_to_num(price_matrix, nan=0.0)
+        
+        # Standardize across all stocks and days
+        original_shape = price_matrix.shape
+        flattened = price_matrix.reshape(-1, 1)
+        standardized = self.feature_scaler.fit_transform(flattened)
+        price_matrix = standardized.reshape(original_shape)
+        
+        return price_matrix

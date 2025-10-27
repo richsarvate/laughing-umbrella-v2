@@ -11,7 +11,7 @@ from transformers import GPT2Config, GPT2Model
 class TransformerStockTrader(nn.Module):
     """Minimal transformer model for unified stock trading decisions."""
     
-    def __init__(self, num_stocks: int = 500, features_per_stock: int = 3, hidden_size: int = 256):
+    def __init__(self, num_stocks: int = 500, features_per_stock: int = 1, hidden_size: int = 256):
         super().__init__()
         self.num_stocks = num_stocks
         self.features_per_stock = features_per_stock
@@ -68,3 +68,17 @@ class TransformerStockTrader(nn.Module):
         decision_logits = self.unified_decision_head(final_hidden_state)
         
         return decision_logits
+    
+    def forward_with_temperature(self, market_features: torch.Tensor, temperature: float = 1.0) -> torch.Tensor:
+        """
+        Forward pass with temperature scaling applied to logits.
+        Temperature > 1.0 softens the probability distribution (reduces overconfidence).
+        
+        Args:
+            market_features: [batch_size, sequence_length, num_stocks, features_per_stock]
+            temperature: Scaling factor for logits (higher = softer probabilities)
+        Returns:
+            scaled_logits: [batch_size, 502] - temperature-scaled logits
+        """
+        logits = self.forward(market_features)
+        return logits / temperature
