@@ -96,29 +96,47 @@ class MarketDataProcessor:
     
     def extract_price_sequences(self, market_data: pd.DataFrame) -> np.ndarray:
         """
-        Extract normalized price sequences with validity masks.
+        Extract normalized price sequences with validity masks and volume.
         
-        Returns: [days, stocks, 2] - normalized prices + validity mask for each stock
+        Returns: [days, stocks, 3] - normalized prices + validity mask + normalized volume
                  Feature 0: normalized price
                  Feature 1: validity mask (1=valid data, 0=no data/delisted)
+                 Feature 2: log-normalized volume (preserves relative stock size)
         """
         num_stocks = len(self.sp500_tickers)
         num_days = len(market_data)
         
-        # Initialize price matrix: [days, stocks, 2] (price + mask)
-        price_matrix = np.zeros((num_days, num_stocks, 2))
+        # Initialize price matrix: [days, stocks, 3] (price + mask + volume)
+        price_matrix = np.zeros((num_days, num_stocks, 3))
+        
+        # First pass: collect all log-volumes for global normalization
+        all_log_volumes = []
         
         for i, ticker in enumerate(self.sp500_tickers):
             try:
-                # Extract price series for this stock
+                volumes = market_data[ticker]['Volume'].values
+                valid_volumes = volumes[np.isfinite(volumes) & (volumes > 0)]
+                if len(valid_volumes) > 0:
+                    all_log_volumes.extend(np.log1p(valid_volumes))  # log(1+x)
+            except:
+                pass
+        
+        # Calculate global volume statistics (preserves relative size info)
+        global_volume_mean = np.mean(all_log_volumes) if all_log_volumes else 0
+        global_volume_std = np.std(all_log_volumes) if all_log_volumes else 1
+        
+        # Second pass: process each stock with global normalization
+        for i, ticker in enumerate(self.sp500_tickers):
+            try:
+                # Extract price and volume series
                 close_prices = market_data[ticker]['Close'].values
+                volumes = market_data[ticker]['Volume'].values
                 
                 # Create validity mask: 1 where we have valid data, 0 otherwise
                 valid_mask = np.isfinite(close_prices).astype(float)
                 
                 # Skip if insufficient data
                 if len(close_prices) < 2 or not np.any(valid_mask):
-                    # Leave as zeros with mask=0
                     continue
                 
                 # Normalize prices: percentage change from first valid price
@@ -126,12 +144,22 @@ class MarketDataProcessor:
                 normalized_prices = np.where(
                     valid_mask,
                     (close_prices - first_valid_price) / first_valid_price,
-                    0.0  # Zero for invalid prices
+                    0.0
                 )
                 
-                # Store normalized prices and validity mask
+                # Normalize volumes: log transform + global normalization
+                # This preserves relative size (AAPL > small cap) across all stocks
+                log_volumes = np.log1p(volumes)  # log(1+volume) handles zeros
+                normalized_volumes = np.where(
+                    np.isfinite(volumes) & (volumes > 0),
+                    (log_volumes - global_volume_mean) / global_volume_std,
+                    0.0
+                )
+                
+                # Store all features
                 price_matrix[:, i, 0] = normalized_prices
                 price_matrix[:, i, 1] = valid_mask
+                price_matrix[:, i, 2] = normalized_volumes
                 
             except Exception as e:
                 print(f"Warning: Could not process {ticker}: {e}")

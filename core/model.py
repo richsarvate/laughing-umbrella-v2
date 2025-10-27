@@ -11,7 +11,7 @@ from transformers import GPT2Config, GPT2Model
 class TransformerStockTrader(nn.Module):
     """Minimal transformer model for unified stock trading decisions."""
     
-    def __init__(self, num_stocks: int = 500, features_per_stock: int = 2, hidden_size: int = 256):
+    def __init__(self, num_stocks: int = 500, features_per_stock: int = 3, hidden_size: int = 256):
         super().__init__()
         self.num_stocks = num_stocks
         self.features_per_stock = features_per_stock
@@ -49,7 +49,7 @@ class TransformerStockTrader(nn.Module):
         Forward pass through transformer.
         Args:
             market_features: [batch_size, sequence_length, num_stocks, features_per_stock]
-                            where features_per_stock = 2 (price + validity mask)
+                            where features_per_stock = 3 (price + validity mask + volume)
         Returns:
             decision_logits: [batch_size, num_stocks] - probabilities for each stock
         """

@@ -212,13 +212,14 @@ class TrainingSystem:
             training_returns.append(returns)
         
         # Convert to tensors
-        X_train = torch.FloatTensor(np.array(training_sequences))  # [N, 60, stocks, 2]
+        X_train = torch.FloatTensor(np.array(training_sequences))  # [N, 60, stocks, 3]
         y_train = torch.FloatTensor(np.array(training_returns))    # [N, stocks]
         
         num_stocks = len(self.data_processor.sp500_tickers)
         print(f"Training on {len(X_train)} sequences with {num_stocks} stocks")
         print(f"Stock shuffling: ENABLED (prevents position memorization)")
         print(f"Validity masking: ENABLED (prevents delisted stock selection)")
+        print(f"Volume feature: ENABLED (log-normalized across all stocks)")
         print(f"Pure stock selection: No HOLD/CASH options (must pick a stock)")
         
         # Training loop with profit-based loss and stock shuffling
@@ -341,8 +342,8 @@ class TrainingSystem:
             raise ValueError(f"Insufficient data: only {len(price_sequences)} days available, need 60")
         
         # Get last 60 days and reshape properly
-        last_60_days = price_sequences[-60:]  # [60, stocks, 2]
-        input_sequence = last_60_days.reshape(1, 60, self.model.num_stocks, 2)  # [1, 60, stocks, 2]
+        last_60_days = price_sequences[-60:]  # [60, stocks, 3]
+        input_sequence = last_60_days.reshape(1, 60, self.model.num_stocks, 3)  # [1, 60, stocks, 3]
         input_tensor = torch.FloatTensor(input_sequence)
         
         # Use combined MC Dropout + Temperature Scaling inference
