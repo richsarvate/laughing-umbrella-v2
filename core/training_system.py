@@ -282,14 +282,12 @@ class TrainingSystem:
         
         # Save trained model
         torch.save(self.model.state_dict(), 'trained_stock_trader.pth')
-        with open('feature_scaler.pkl', 'wb') as f:
-            pickle.dump(self.data_processor.feature_scaler, f)
         
         final_return = -np.mean(epoch_losses)
         print(f"Model training completed! Final average return: {final_return:.4f} ({final_return*100:.2f}%)")
         print("✅ Stock shuffling applied - model cannot memorize positions!")
     
-    def predict_action(self, target_date: str, model_path: str = None, scaler_path: str = None) -> Tuple[str, Optional[str]]:
+    def predict_action(self, target_date: str, model_path: str = None) -> Tuple[str, Optional[str]]:
         """
         Make unified trading decision for a specific date.
         Uses MC Dropout + Temperature Scaling for robust predictions with reduced overconfidence.
@@ -297,13 +295,9 @@ class TrainingSystem:
         # Use provided paths or default to models directory
         if model_path is None:
             model_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'models', 'trained_stock_trader.pth')
-        if scaler_path is None:
-            scaler_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'models', 'feature_scaler.pkl')
             
         # Load trained model
         self.model.load_state_dict(torch.load(model_path))
-        with open(scaler_path, 'rb') as f:
-            self.data_processor.feature_scaler = pickle.load(f)
         
         # Get recent market data leading up to prediction date (need 60 days now)
         start_date = (datetime.strptime(target_date, "%Y-%m-%d") - timedelta(days=90)).strftime("%Y-%m-%d")

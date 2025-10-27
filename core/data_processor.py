@@ -1,21 +1,19 @@
 """
-Market data processing module for S&P 500 stocks.
-Handles data download, feature extraction, and anonymous representation.
+Market data processing module for S&P 500 stocks - V2.
+Handles data download and price sequence extraction for pure sequence learning.
+No technical indicators - just normalized price sequences like GPT uses text sequences.
 """
 
 from typing import List
 import numpy as np
 import pandas as pd
 import yfinance as yf
-from sklearn.preprocessing import StandardScaler
-
 
 class MarketDataProcessor:
-    """Handles S&P 500 data download and anonymous feature extraction."""
+    """Handles S&P 500 data download and price sequence extraction."""
     
-    def __init__(self, lookback_days: int = 30):
+    def __init__(self, lookback_days: int = 60):
         self.lookback_days = lookback_days
-        self.feature_scaler = StandardScaler()
         self.sp500_tickers = self._get_sp500_tickers()
     
     def _get_sp500_tickers(self) -> List[str]:
@@ -78,39 +76,7 @@ class MarketDataProcessor:
         # Remove any duplicates and return first 500
         return list(dict.fromkeys(sp500_tickers))[:500]
     
-    def _calculate_rsi(self, prices: np.ndarray, period: int = 14) -> np.ndarray:
-        """Calculate RSI using simple method without talib dependency."""
-        if len(prices) < period + 1:
-            return np.full(len(prices), 50.0)  # Neutral RSI
-        
-        # Calculate price changes
-        deltas = np.diff(prices)
-        
-        # Separate gains and losses
-        gains = np.where(deltas > 0, deltas, 0)
-        losses = np.where(deltas < 0, -deltas, 0)
-        
-        # Initialize RSI array
-        rsi = np.full(len(prices), 50.0)
-        
-        # Calculate initial averages
-        if len(gains) >= period:
-            avg_gain = np.mean(gains[:period])
-            avg_loss = np.mean(losses[:period])
-            
-            # Calculate RSI for each point after the initial period
-            for i in range(period, len(prices)):
-                if i-period >= 0:
-                    avg_gain = (avg_gain * (period - 1) + gains[i-1]) / period
-                    avg_loss = (avg_loss * (period - 1) + losses[i-1]) / period
-                    
-                    if avg_loss == 0:
-                        rsi[i] = 100.0
-                    else:
-                        rs = avg_gain / avg_loss
-                        rsi[i] = 100 - (100 / (1 + rs))
-        
-        return rsi
+
     
     def download_market_data(self, start_date: str, end_date: str) -> pd.DataFrame:
         """Download OHLCV data for all S&P stocks."""
@@ -126,57 +92,7 @@ class MarketDataProcessor:
         )
         return stock_data
     
-    def extract_anonymous_features(self, market_data: pd.DataFrame) -> np.ndarray:
-        """Convert raw price data to anonymous technical features."""
-        num_stocks = len(self.sp500_tickers)
-        num_days = len(market_data)
-        features_per_stock = 3  # momentum_5d, volatility_20d, rsi_14d
-        
-        # Initialize feature matrix: [days, stocks, features]
-        feature_matrix = np.zeros((num_days, num_stocks, features_per_stock))
-        
-        for i, ticker in enumerate(self.sp500_tickers):
-            try:
-                # Extract price series for this stock
-                close_prices = market_data[ticker]['Close'].values
-                
-                # Skip if insufficient data
-                if len(close_prices) < 21:
-                    continue
-                
-                # Feature 1: 5-day momentum (return)
-                momentum_5d = np.zeros(len(close_prices))
-                momentum_5d[5:] = (close_prices[5:] - close_prices[:-5]) / close_prices[:-5]
-                
-                # Feature 2: 20-day rolling volatility
-                returns = np.diff(close_prices) / close_prices[:-1]
-                volatility_20d = np.zeros(len(close_prices))
-                for j in range(20, len(close_prices)):
-                    volatility_20d[j] = np.std(returns[j-20:j])
-                
-                # Feature 3: 14-day RSI (simplified calculation)
-                rsi_14d = self._calculate_rsi(close_prices, period=14)
-                rsi_14d = np.nan_to_num(rsi_14d, nan=50.0) / 100.0  # Normalize to [0,1]
-                
-                # Store features
-                feature_matrix[:, i, 0] = momentum_5d
-                feature_matrix[:, i, 1] = volatility_20d  
-                feature_matrix[:, i, 2] = rsi_14d
-                
-            except Exception as e:
-                print(f"Warning: Could not process {ticker}: {e}")
-                continue
-        
-        # Remove NaN and standardize features
-        feature_matrix = np.nan_to_num(feature_matrix, nan=0.0)
-        
-        # Reshape for standardization: [samples, features]
-        original_shape = feature_matrix.shape
-        flattened = feature_matrix.reshape(-1, features_per_stock)
-        standardized = self.feature_scaler.fit_transform(flattened)
-        feature_matrix = standardized.reshape(original_shape)
-        
-        return feature_matrix
+
     
     def extract_price_sequences(self, market_data: pd.DataFrame) -> np.ndarray:
         """
@@ -211,13 +127,7 @@ class MarketDataProcessor:
                 print(f"Warning: Could not process {ticker}: {e}")
                 continue
         
-        # Remove NaN
+        # Remove NaN and return normalized price sequences
         price_matrix = np.nan_to_num(price_matrix, nan=0.0)
-        
-        # Standardize across all stocks and days
-        original_shape = price_matrix.shape
-        flattened = price_matrix.reshape(-1, 1)
-        standardized = self.feature_scaler.fit_transform(flattened)
-        price_matrix = standardized.reshape(original_shape)
         
         return price_matrix

@@ -26,7 +26,6 @@ if __name__ == "__main__":
     print("TRAINING COMPLETE!")
     print("=" * 70)
     print("\nModel saved to: core/trained_stock_trader.pth")
-    print("Scaler saved to: core/feature_scaler.pkl")
     print("\nNext steps:")
     print("  1. Run: python test_month.py")
     print("  2. Check for diverse stock picks (not just ENPH/NI)")
