@@ -1,196 +1,0 @@
-nohup: ignoring input
-/opt/pytorch/lib/python3.12/site-packages/torch/cuda/__init__.py:63: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
-  import pynvml  # type: ignore[import]
-[                       0%                       ][                       1%                       ]  2 of 308 completed[                       1%                       ]  3 of 308 completed[                       1%                       ]  4 of 308 completed[*                      2%                       ]  5 of 308 completed[*                      2%                       ]  6 of 308 completed[*                      2%                       ]  7 of 308 completed[*                      3%                       ]  8 of 308 completed[*                      3%                       ]  9 of 308 completed[*                      3%                       ]  10 of 308 completed[**                     4%                       ]  11 of 308 completed[**                     4%                       ]  12 of 308 completed[**                     4%                       ]  13 of 308 completed[**                     5%                       ]  14 of 308 completed[**                     5%                       ]  15 of 308 completed[**                     5%                       ]  16 of 308 completed[***                    6%                       ]  17 of 308 completed[***                    6%                       ]  18 of 308 completed[***                    6%                       ]  19 of 308 completed[***                    6%                       ]  20 of 308 completed[***                    7%                       ]  21 of 308 completed[***                    7%                       ]  22 of 308 completed[***                    7%                       ]  23 of 308 completed[****                   8%                       ]  24 of 308 completed[****                   8%                       ]  25 of 308 completed[****                   8%                       ]  26 of 308 completed[****                   9%                       ]  27 of 308 completed[****                   9%                       ]  28 of 308 completed[****                   9%                       ]  29 of 308 completed[*****                 10%                       ]  30 of 308 completed[*****                 10%                       ]  31 of 308 completed[*****                 10%                       ]  32 of 308 completed[*****                 11%                       ]  33 of 308 completed[*****                 11%                       ]  34 of 308 completed[*****                 11%                       ]  35 of 308 completed[******                12%                       ]  36 of 308 completed[******                12%                       ]  37 of 308 completed[******                12%                       ]  38 of 308 completed[******                13%                       ]  39 of 308 completed[******                13%                       ]  40 of 308 completed[******                13%                       ]  41 of 308 completed[*******               14%                       ]  42 of 308 completed[*******               14%                       ]  43 of 308 completed[*******               14%                       ]  44 of 308 completed[*******               15%                       ]  45 of 308 completed[*******               15%                       ]  46 of 308 completed[*******               15%                       ]  47 of 308 completed[********              16%                       ]  48 of 308 completed[********              16%                       ]  49 of 308 completed[********              16%                       ]  50 of 308 completed[********              17%                       ]  51 of 308 completed[********              17%                       ]  52 of 308 completed[********              17%                       ]  53 of 308 completed[*********             18%                       ]  54 of 308 completed[*********             18%                       ]  55 of 308 completed[*********             18%                       ]  56 of 308 completed[*********             19%                       ]  57 of 308 completed[*********             19%                       ]  58 of 308 completed[*********             19%                       ]  59 of 308 completed[*********             19%                       ]  60 of 308 completed[**********            20%                       ]  61 of 308 completed[**********            20%                       ]  62 of 308 completed[**********            20%                       ]  63 of 308 completed[**********            21%                       ]  64 of 308 completed[**********            21%                       ]  65 of 308 completed[**********            21%                       ]  66 of 308 completed[***********           22%                       ]  67 of 308 completed[***********           22%                       ]  68 of 308 completed[***********           22%                       ]  69 of 308 completed[***********           23%                       ]  70 of 308 completed[***********           23%                       ]  71 of 308 completed[***********           23%                       ]  72 of 308 completed[************          24%                       ]  73 of 308 completed[************          24%                       ]  74 of 308 completed[************          24%                       ]  75 of 308 completed[************          25%                       ]  76 of 308 completed[************          25%                       ]  77 of 308 completed[************          25%                       ]  78 of 308 completed[************          26%                       ]  79 of 308 completed[************          26%                       ]  80 of 308 completed[************          26%                       ]  81 of 308 completed[*************         27%                       ]  82 of 308 completed[*************         27%                       ]  83 of 308 completed[*************         27%                       ]  84 of 308 completed[*************         28%                       ]  85 of 308 completed[*************         28%                       ]  86 of 308 completed[*************         28%                       ]  87 of 308 completed[**************        29%                       ]  88 of 308 completed[**************        29%                       ]  89 of 308 completed[**************        29%                       ]  90 of 308 completed[**************        30%                       ]  91 of 308 completed[**************        30%                       ]  92 of 308 completed[**************        30%                       ]  93 of 308 completed[***************       31%                       ]  94 of 308 completed[***************       31%                       ]  95 of 308 completed[***************       31%                       ]  96 of 308 completed[***************       31%                       ]  97 of 308 completed[***************       32%                       ]  98 of 308 completed[***************       32%                       ]  99 of 308 completed[***************       32%                       ]  100 of 308 completed[****************      33%                       ]  101 of 308 completed[****************      33%                       ]  102 of 308 completed[****************      33%                       ]  103 of 308 completed[****************      34%                       ]  104 of 308 completed[****************      34%                       ]  105 of 308 completed[****************      34%                       ]  106 of 308 completed[*****************     35%                       ]  107 of 308 completed[*****************     35%                       ]  108 of 308 completed[*****************     35%                       ]  109 of 308 completed[*****************     36%                       ]  110 of 308 completed[*****************     36%                       ]  111 of 308 completed[*****************     36%                       ]  112 of 308 completed[******************    37%                       ]  113 of 308 completed[******************    37%                       ]  114 of 308 completed[******************    37%                       ]  115 of 308 completed[******************    38%                       ]  116 of 308 completed[******************    38%                       ]  117 of 308 completed[******************    38%                       ]  118 of 308 completed[*******************   39%                       ]  119 of 308 completed[*******************   39%                       ]  120 of 308 completed[*******************   39%                       ]  121 of 308 completed[*******************   40%                       ]  122 of 308 completed[*******************   40%                       ]  123 of 308 completed[*******************   40%                       ]  124 of 308 completed[********************  41%                       ]  125 of 308 completed[********************  41%                       ]  126 of 308 completed[********************  41%                       ]  127 of 308 completed[********************  42%                       ]  128 of 308 completed[********************  42%                       ]  129 of 308 completed[********************  42%                       ]  130 of 308 completed[********************* 43%                       ]  131 of 308 completed[********************* 43%                       ]  132 of 308 completed[********************* 43%                       ]  133 of 308 completed[********************* 44%                       ]  134 of 308 completed[********************* 44%                       ]  135 of 308 completed[********************* 44%                       ]  136 of 308 completed[********************* 44%                       ]  137 of 308 completed[**********************45%                       ]  138 of 308 completed[**********************45%                       ]  139 of 308 completed[**********************45%                       ]  140 of 308 completed[**********************46%                       ]  141 of 308 completed[**********************46%                       ]  142 of 308 completed[**********************46%                       ]  143 of 308 completed[**********************47%                       ]  144 of 308 completed[**********************47%                       ]  145 of 308 completed[**********************47%                       ]  146 of 308 completed[**********************48%                       ]  147 of 308 completed[**********************48%                       ]  148 of 308 completed[**********************48%                       ]  149 of 308 completed[**********************49%                       ]  150 of 308 completed[**********************49%                       ]  151 of 308 completed[**********************49%                       ]  152 of 308 completed[**********************50%                       ]  153 of 308 completed[**********************50%                       ]  154 of 308 completed[**********************50%                       ]  155 of 308 completed[**********************51%                       ]  156 of 308 completed[**********************51%                       ]  157 of 308 completed[**********************51%                       ]  158 of 308 completed[**********************52%                       ]  159 of 308 completed[**********************52%                       ]  160 of 308 completed[**********************52%                       ]  161 of 308 completed[**********************53%                       ]  162 of 308 completed[**********************53%                       ]  163 of 308 completed[**********************53%                       ]  164 of 308 completed[**********************54%*                      ]  165 of 308 completed[**********************54%*                      ]  166 of 308 completed[**********************54%*                      ]  167 of 308 completed[**********************55%*                      ]  168 of 308 completed[**********************55%*                      ]  169 of 308 completed[**********************55%*                      ]  170 of 308 completed[**********************56%**                     ]  171 of 308 completed[**********************56%**                     ]  172 of 308 completed[**********************56%**                     ]  173 of 308 completed[**********************56%**                     ]  174 of 308 completed[**********************57%**                     ]  175 of 308 completed[**********************57%**                     ]  176 of 308 completed[**********************57%**                     ]  177 of 308 completed[**********************58%***                    ]  178 of 308 completed[**********************58%***                    ]  179 of 308 completed[**********************58%***                    ]  180 of 308 completed[**********************59%***                    ]  181 of 308 completed[**********************59%***                    ]  182 of 308 completed[**********************59%***                    ]  183 of 308 completed[**********************60%****                   ]  184 of 308 completed[**********************60%****                   ]  185 of 308 completed[**********************60%****                   ]  186 of 308 completed[**********************61%****                   ]  187 of 308 completed[**********************61%****                   ]  188 of 308 completed[**********************61%****                   ]  189 of 308 completed[**********************62%*****                  ]  190 of 308 completed[**********************62%*****                  ]  191 of 308 completed[**********************62%*****                  ]  192 of 308 completed[**********************63%*****                  ]  193 of 308 completed[**********************63%*****                  ]  194 of 308 completed[**********************63%*****                  ]  195 of 308 completed[**********************64%******                 ]  196 of 308 completed[**********************64%******                 ]  197 of 308 completed[**********************64%******                 ]  198 of 308 completed[**********************65%******                 ]  199 of 308 completed[**********************65%******                 ]  200 of 308 completed[**********************65%******                 ]  201 of 308 completed[**********************66%*******                ]  202 of 308 completed[**********************66%*******                ]  203 of 308 completed[**********************66%*******                ]  204 of 308 completed[**********************67%*******                ]  205 of 308 completed[**********************67%*******                ]  206 of 308 completed[**********************67%*******                ]  207 of 308 completed[**********************68%********               ]  208 of 308 completed[**********************68%********               ]  209 of 308 completed[**********************68%********               ]  210 of 308 completed[**********************69%********               ]  211 of 308 completed[**********************69%********               ]  212 of 308 completed[**********************69%********               ]  213 of 308 completed[**********************69%********               ]  214 of 308 completed[**********************70%*********              ]  215 of 308 completed[**********************70%*********              ]  216 of 308 completed[**********************70%*********              ]  217 of 308 completed[**********************71%*********              ]  218 of 308 completed[**********************71%*********              ]  219 of 308 completed[**********************71%*********              ]  220 of 308 completed[**********************72%**********             ]  221 of 308 completed[**********************72%**********             ]  222 of 308 completed[**********************72%**********             ]  223 of 308 completed[**********************73%**********             ]  224 of 308 completed[**********************73%**********             ]  225 of 308 completed[**********************73%**********             ]  226 of 308 completed[**********************74%***********            ]  227 of 308 completed[**********************74%***********            ]  228 of 308 completed[**********************74%***********            ]  229 of 308 completed[**********************75%***********            ]  230 of 308 completed[**********************75%***********            ]  231 of 308 completed[**********************75%***********            ]  232 of 308 completed[**********************76%***********            ]  233 of 308 completed[**********************76%***********            ]  234 of 308 completed[**********************76%***********            ]  235 of 308 completed[**********************77%************           ]  236 of 308 completed[**********************77%************           ]  237 of 308 completed[**********************77%************           ]  238 of 308 completed[**********************78%************           ]  239 of 308 completed[**********************78%************           ]  240 of 308 completed[**********************78%************           ]  241 of 308 completed[**********************79%*************          ]  242 of 308 completed[**********************79%*************          ]  243 of 308 completed[**********************79%*************          ]  244 of 308 completed[**********************80%*************          ]  245 of 308 completed[**********************80%*************          ]  246 of 308 completed[**********************80%*************          ]  247 of 308 completed[**********************81%**************         ]  248 of 308 completed[**********************81%**************         ]  249 of 308 completed[**********************81%**************         ]  250 of 308 completed[**********************81%**************         ]  251 of 308 completed[**********************81%**************         ]  251 of 308 completed[**********************82%**************         ]  253 of 308 completed[**********************82%**************         ]  254 of 308 completed[**********************83%***************        ]  255 of 308 completed[**********************83%***************        ]  256 of 308 completed[**********************83%***************        ]  257 of 308 completed[**********************84%***************        ]  258 of 308 completed[**********************84%***************        ]  259 of 308 completed[**********************84%***************        ]  260 of 308 completed[**********************85%****************       ]  261 of 308 completed[**********************85%****************       ]  262 of 308 completed[**********************85%****************       ]  263 of 308 completed[**********************86%****************       ]  264 of 308 completed[**********************86%****************       ]  265 of 308 completed[**********************86%****************       ]  266 of 308 completed[**********************87%*****************      ]  267 of 308 completed[**********************87%*****************      ]  268 of 308 completed[**********************87%*****************      ]  269 of 308 completed[**********************88%*****************      ]  270 of 308 completed[**********************88%*****************      ]  271 of 308 completed[**********************88%*****************      ]  272 of 308 completed[**********************89%******************     ]  273 of 308 completed[**********************89%******************     ]  274 of 308 completed[**********************89%******************     ]  275 of 308 completed[**********************90%******************     ]  276 of 308 completed[**********************90%******************     ]  277 of 308 completed[**********************90%******************     ]  278 of 308 completed[**********************91%*******************    ]  279 of 308 completed[**********************91%*******************    ]  280 of 308 completed[**********************91%*******************    ]  281 of 308 completed[**********************92%*******************    ]  282 of 308 completed[**********************92%*******************    ]  283 of 308 completed[**********************92%*******************    ]  284 of 308 completed[**********************93%********************   ]  285 of 308 completed[**********************93%********************   ]  286 of 308 completed[**********************93%********************   ]  287 of 308 completed[**********************94%********************   ]  288 of 308 completed[**********************94%********************   ]  289 of 308 completed[**********************94%********************   ]  290 of 308 completed[**********************94%********************   ]  291 of 308 completed[**********************95%*********************  ]  292 of 308 completed[**********************95%*********************  ]  293 of 308 completed[**********************95%*********************  ]  294 of 308 completed[**********************96%*********************  ]  295 of 308 completed[**********************96%*********************  ]  296 of 308 completed[**********************96%*********************  ]  297 of 308 completed[**********************97%********************** ]  298 of 308 completed[**********************97%********************** ]  299 of 308 completed[**********************97%********************** ]  300 of 308 completed[**********************98%********************** ]  301 of 308 completed[**********************98%********************** ]  302 of 308 completed[**********************98%********************** ]  303 of 308 completed[**********************99%***********************]  304 of 308 completed[**********************99%***********************]  305 of 308 completed[**********************99%***********************]  306 of 308 completed[*********************100%***********************]  307 of 308 completed[*********************100%***********************]  308 of 308 completed
-
-15 Failed downloads:
-['HFC', 'ANSS', 'CTXS', 'DISCA', 'DRE', 'DFS', 'CTLT', 'DISCK', 'RE', 'ALXN', 'MRO', 'CDAY', 'CERN', 'DISH', 'BLL']: YFTzMissingError('possibly delisted; no timezone found')
-======================================================================
-TRAINING TRANSFORMER V2 - FULL TRAINING (2010-2024)
-======================================================================
-
-📅 Training Period: 2010-01-01 to 2024-01-01 (14 years)
-⚡ Epochs: 150
-🚀 GPU Acceleration: ENABLED
-🚀 Using device: cuda
-   GPU: NVIDIA A10G
-   Memory: 23.68 GB
-
-Starting training on 2010-01-01 to 2024-01-01...
-Training transformer stock trader with profit maximization + stock shuffling...
-Using 60-day price sequences (pure sequence learning like GPT)
-Downloading market data from 2010-01-01 to 2024-01-01...
-Training on 3457 sequences with 308 stocks
-Stock shuffling: ENABLED (prevents position memorization)
-Validity masking: ENABLED (prevents delisted stock selection)
-Volume feature: ENABLED (log-normalized across all stocks)
-Pure stock selection: No HOLD/CASH options (must pick a stock)
-Device: cuda
-
-🔥 Starting training: 150 epochs, 27 batches/epoch
-📦 Batch size: 128 (optimized for GPU)
-────────────────────────────────────────────────────────────
-Epoch   0/150 │ Return:  +0.09% │ Best:  +0.09% (ep   0) │ Time:  0.8s │ ETA:  1.9m
-Epoch   1/150 │ Return:  +0.22% │ Best:  +0.22% (ep   1) │ Time:  0.4s │ ETA:  1.5m
-Epoch   2/150 │ Return:  +0.31% │ Best:  +0.31% (ep   2) │ Time:  0.4s │ ETA:  1.3m
-Epoch   3/150 │ Return:  +0.19% │ Best:  +0.31% (ep   2) │ Time:  0.4s │ ETA:  1.3m
-Epoch   4/150 │ Return:  +0.36% │ Best:  +0.36% (ep   4) │ Time:  0.4s │ ETA:  1.2m
-Epoch   5/150 │ Return:  +0.22% │ Best:  +0.36% (ep   4) │ Time:  0.4s │ ETA:  1.2m
-Epoch   6/150 │ Return:  +0.33% │ Best:  +0.36% (ep   4) │ Time:  0.4s │ ETA:  1.1m
-Epoch   7/150 │ Return:  +0.32% │ Best:  +0.36% (ep   4) │ Time:  0.4s │ ETA:  1.1m
-Epoch   8/150 │ Return:  +0.29% │ Best:  +0.36% (ep   4) │ Time:  0.4s │ ETA:  1.1m
-Epoch   9/150 │ Return:  +0.34% │ Best:  +0.36% (ep   4) │ Time:  0.4s │ ETA:  1.1m
-Epoch  10/150 │ Return:  +0.32% │ Best:  +0.36% (ep   4) │ Time:  0.4s │ ETA:  1.1m
-Epoch  11/150 │ Return:  +0.32% │ Best:  +0.36% (ep   4) │ Time:  0.4s │ ETA:  1.1m
-Epoch  12/150 │ Return:  +0.44% │ Best:  +0.44% (ep  12) │ Time:  0.4s │ ETA:  1.1m
-Epoch  13/150 │ Return:  +0.31% │ Best:  +0.44% (ep  12) │ Time:  0.4s │ ETA:  1.0m
-Epoch  14/150 │ Return:  +0.38% │ Best:  +0.44% (ep  12) │ Time:  0.4s │ ETA:  1.0m
-Epoch  15/150 │ Return:  +0.38% │ Best:  +0.44% (ep  12) │ Time:  0.4s │ ETA:  1.0m
-Epoch  16/150 │ Return:  +0.30% │ Best:  +0.44% (ep  12) │ Time:  0.4s │ ETA:  1.0m
-Epoch  17/150 │ Return:  +0.39% │ Best:  +0.44% (ep  12) │ Time:  0.4s │ ETA:  1.0m
-Epoch  18/150 │ Return:  +0.38% │ Best:  +0.44% (ep  12) │ Time:  0.4s │ ETA:  1.0m
-Epoch  19/150 │ Return:  +0.21% │ Best:  +0.44% (ep  12) │ Time:  0.4s │ ETA:  1.0m
-Epoch  20/150 │ Return:  +0.15% │ Best:  +0.44% (ep  12) │ Time:  0.4s │ ETA:  1.0m
-Epoch  21/150 │ Return:  +0.35% │ Best:  +0.44% (ep  12) │ Time:  0.4s │ ETA:  1.0m
-Epoch  22/150 │ Return:  +0.34% │ Best:  +0.44% (ep  12) │ Time:  0.4s │ ETA:  1.0m
-Epoch  23/150 │ Return:  +0.33% │ Best:  +0.44% (ep  12) │ Time:  0.4s │ ETA:  0.9m
-Epoch  24/150 │ Return:  +0.27% │ Best:  +0.44% (ep  12) │ Time:  0.4s │ ETA:  0.9m
-Epoch  25/150 │ Return:  +0.32% │ Best:  +0.44% (ep  12) │ Time:  0.4s │ ETA:  0.9m
-Epoch  26/150 │ Return:  +0.19% │ Best:  +0.44% (ep  12) │ Time:  0.4s │ ETA:  0.9m
-Epoch  27/150 │ Return:  +0.41% │ Best:  +0.44% (ep  12) │ Time:  0.4s │ ETA:  0.9m
-Epoch  28/150 │ Return:  +0.16% │ Best:  +0.44% (ep  12) │ Time:  0.4s │ ETA:  0.9m
-Epoch  29/150 │ Return:  +0.15% │ Best:  +0.44% (ep  12) │ Time:  0.4s │ ETA:  0.9m
-Epoch  30/150 │ Return:  +0.35% │ Best:  +0.44% (ep  12) │ Time:  0.4s │ ETA:  0.9m
-Epoch  31/150 │ Return:  +0.36% │ Best:  +0.44% (ep  12) │ Time:  0.4s │ ETA:  0.9m
-Epoch  32/150 │ Return:  +0.27% │ Best:  +0.44% (ep  12) │ Time:  0.4s │ ETA:  0.9m
-Epoch  33/150 │ Return:  +0.27% │ Best:  +0.44% (ep  12) │ Time:  0.4s │ ETA:  0.9m
-Epoch  34/150 │ Return:  +0.33% │ Best:  +0.44% (ep  12) │ Time:  0.4s │ ETA:  0.9m
-Epoch  35/150 │ Return:  +0.23% │ Best:  +0.44% (ep  12) │ Time:  0.4s │ ETA:  0.8m
-Epoch  36/150 │ Return:  +0.34% │ Best:  +0.44% (ep  12) │ Time:  0.4s │ ETA:  0.8m
-Epoch  37/150 │ Return:  +0.78% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.8m
-Epoch  38/150 │ Return:  +0.44% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.8m
-Epoch  39/150 │ Return:  +0.40% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.8m
-Epoch  40/150 │ Return:  +0.35% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.8m
-Epoch  41/150 │ Return:  +0.35% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.8m
-Epoch  42/150 │ Return:  +0.47% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.8m
-Epoch  43/150 │ Return:  +0.35% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.8m
-Epoch  44/150 │ Return:  +0.04% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.8m
-Epoch  45/150 │ Return:  +0.32% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.8m
-Epoch  46/150 │ Return:  +0.10% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.8m
-Epoch  47/150 │ Return:  +0.33% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.8m
-Epoch  48/150 │ Return:  +0.38% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.7m
-Epoch  49/150 │ Return:  +0.34% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.7m
-Epoch  50/150 │ Return:  +0.30% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.7m
-Epoch  51/150 │ Return:  +0.36% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.7m
-Epoch  52/150 │ Return:  +0.32% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.7m
-Epoch  53/150 │ Return:  +0.33% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.7m
-Epoch  54/150 │ Return:  +0.23% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.7m
-Epoch  55/150 │ Return:  +0.45% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.7m
-Epoch  56/150 │ Return:  +0.33% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.7m
-Epoch  57/150 │ Return:  +0.33% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.7m
-Epoch  58/150 │ Return:  +0.28% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.7m
-Epoch  59/150 │ Return:  +0.39% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.7m
-Epoch  60/150 │ Return:  +0.32% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.7m
-Epoch  61/150 │ Return:  +0.33% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.6m
-Epoch  62/150 │ Return:  +0.25% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.6m
-Epoch  63/150 │ Return:  +0.38% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.6m
-Epoch  64/150 │ Return:  +0.35% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.6m
-Epoch  65/150 │ Return:  +0.35% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.6m
-Epoch  66/150 │ Return:  +0.28% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.6m
-Epoch  67/150 │ Return:  +0.32% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.6m
-Epoch  68/150 │ Return:  +0.38% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.6m
-Epoch  69/150 │ Return:  +0.28% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.6m
-Epoch  70/150 │ Return:  -0.10% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.6m
-Epoch  71/150 │ Return:  +0.31% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.6m
-Epoch  72/150 │ Return:  +0.34% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.6m
-Epoch  73/150 │ Return:  +0.32% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.6m
-Epoch  74/150 │ Return:  +0.22% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.5m
-Epoch  75/150 │ Return:  -0.02% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.5m
-Epoch  76/150 │ Return:  +0.37% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.5m
-Epoch  77/150 │ Return:  +0.40% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.5m
-Epoch  78/150 │ Return:  +0.33% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.5m
-Epoch  79/150 │ Return:  +0.36% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.5m
-Epoch  80/150 │ Return:  +0.30% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.5m
-Epoch  81/150 │ Return:  +0.32% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.5m
-Epoch  82/150 │ Return:  +0.36% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.5m
-Epoch  83/150 │ Return:  +0.23% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.5m
-Epoch  84/150 │ Return:  +0.35% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.5m
-Epoch  85/150 │ Return:  +0.25% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.5m
-Epoch  86/150 │ Return:  +0.27% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.5m
-Epoch  87/150 │ Return:  +0.26% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.5m
-Epoch  88/150 │ Return:  +0.34% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.4m
-Epoch  89/150 │ Return:  +0.37% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.4m
-Epoch  90/150 │ Return:  +0.31% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.4m
-Epoch  91/150 │ Return:  +0.34% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.4m
-Epoch  92/150 │ Return:  +0.28% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.4m
-Epoch  93/150 │ Return:  +0.31% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.4m
-Epoch  94/150 │ Return:  +0.31% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.4m
-Epoch  95/150 │ Return:  +0.13% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.4m
-Epoch  96/150 │ Return:  +0.26% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.4m
-Epoch  97/150 │ Return:  +0.52% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.4m
-Epoch  98/150 │ Return:  +0.35% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.4m
-Epoch  99/150 │ Return:  +0.36% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.4m
-Epoch 100/150 │ Return:  +0.39% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.4m
-Epoch 101/150 │ Return:  +0.24% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.4m
-Epoch 102/150 │ Return:  +0.24% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.3m
-Epoch 103/150 │ Return:  +0.25% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.3m
-Epoch 104/150 │ Return:  +0.27% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.3m
-Epoch 105/150 │ Return:  +0.27% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.3m
-Epoch 106/150 │ Return:  +0.30% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.3m
-Epoch 107/150 │ Return:  +0.31% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.3m
-Epoch 108/150 │ Return:  +0.36% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.3m
-Epoch 109/150 │ Return:  +0.36% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.3m
-Epoch 110/150 │ Return:  +0.25% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.3m
-Epoch 111/150 │ Return:  +0.31% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.3m
-Epoch 112/150 │ Return:  +0.33% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.3m
-Epoch 113/150 │ Return:  +0.33% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.3m
-Epoch 114/150 │ Return:  +0.31% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.3m
-Epoch 115/150 │ Return:  +0.20% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.2m
-Epoch 116/150 │ Return:  +0.49% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.2m
-Epoch 117/150 │ Return:  +0.27% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.2m
-Epoch 118/150 │ Return:  +0.39% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.2m
-Epoch 119/150 │ Return:  +0.25% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.2m
-Epoch 120/150 │ Return:  +0.34% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.2m
-Epoch 121/150 │ Return:  +0.33% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.2m
-Epoch 122/150 │ Return:  +0.38% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.2m
-Epoch 123/150 │ Return:  +0.27% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.2m
-Epoch 124/150 │ Return:  +0.29% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.2m
-Epoch 125/150 │ Return:  +0.27% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.2m
-Epoch 126/150 │ Return:  +0.42% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.2m
-Epoch 127/150 │ Return:  +0.32% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.2m
-Epoch 128/150 │ Return:  +0.35% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.2m
-Epoch 129/150 │ Return:  +0.38% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.1m
-Epoch 130/150 │ Return:  +0.35% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.1m
-Epoch 131/150 │ Return:  +0.19% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.1m
-Epoch 132/150 │ Return:  +0.38% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.1m
-Epoch 133/150 │ Return:  +0.31% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.1m
-Epoch 134/150 │ Return:  +0.34% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.1m
-Epoch 135/150 │ Return:  +0.32% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.1m
-Epoch 136/150 │ Return:  +0.43% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.1m
-Epoch 137/150 │ Return:  +0.33% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.1m
-Epoch 138/150 │ Return:  +0.35% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.1m
-Epoch 139/150 │ Return:  +0.32% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.1m
-Epoch 140/150 │ Return:  +0.34% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.1m
-Epoch 141/150 │ Return:  +0.32% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.1m
-Epoch 142/150 │ Return:  +0.23% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.1m
-Epoch 143/150 │ Return:  +0.36% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.0m
-Epoch 144/150 │ Return:  +0.32% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.0m
-Epoch 145/150 │ Return:  +0.26% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.0m
-Epoch 146/150 │ Return:  +0.29% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.0m
-Epoch 147/150 │ Return:  +0.37% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.0m
-Epoch 148/150 │ Return:  +0.28% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.0m
-Epoch 149/150 │ Return:  +0.51% │ Best:  +0.78% (ep  37) │ Time:  0.4s │ ETA:  0.0m
-────────────────────────────────────────────────────────────
-🎯 TRAINING COMPLETE!
-   Final Return:   +0.51%
-   Best Return:    +0.78% (epoch 37)
-   Total Time:    1.1 minutes
-   Model saved:   /home/ec2-user/Projects/laughing-umbrella-v2/models/trained_stock_trader.pth
-   ✅ Stock shuffling applied - no position memorization!
-────────────────────────────────────────────────────────────
-
-======================================================================
-TRAINING COMPLETE!
-======================================================================
-
-Model saved to: core/trained_stock_trader.pth

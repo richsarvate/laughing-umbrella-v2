@@ -19,22 +19,24 @@ from model import TransformerStockTrader
 
 
 class EnhancedProfitLoss(nn.Module):
-    """Loss function that directly maximizes returns with asymmetric risk penalties."""
+    """Loss function that directly maximizes returns with asymmetric risk penalties and diversity bonus."""
     
-    def __init__(self, loss_penalty_factor: float = 1.0):
+    def __init__(self, loss_penalty_factor: float = 1.0, diversity_weight: float = 0.1):
         super().__init__()
         self.loss_penalty_factor = loss_penalty_factor  # Punish losses more than reward gains
+        self.diversity_weight = diversity_weight  # Weight for diversity penalty
         
     def forward(self, predictions: torch.Tensor, future_returns: torch.Tensor) -> torch.Tensor:
         """
         Calculate profit-based loss for model predictions using differentiable approach.
+        Now includes a diversity penalty to prevent overfitting to a single stock.
         
         Args:
             predictions: [batch_size, num_stocks] - model logits for all stocks
             future_returns: [batch_size, num_stocks] - actual 5-day returns for each stock
         
         Returns:
-            loss: Scalar loss value (negative expected return)
+            loss: Scalar loss value (negative expected return + diversity penalty)
         """
         # Convert logits to probabilities (differentiable)
         action_probs = F.softmax(predictions, dim=-1)  # [batch_size, num_stocks]
@@ -49,8 +51,30 @@ class EnhancedProfitLoss(nn.Module):
             self.loss_penalty_factor * expected_returns  # Punish negative expected returns more
         )
         
+        # DIVERSITY PENALTY: Encourage the model to spread predictions across stocks
+        # Use negative entropy as a penalty (high entropy = more diversity = good)
+        # Entropy = -sum(p * log(p))
+        epsilon = 1e-10  # Prevent log(0)
+        entropy = -torch.sum(action_probs * torch.log(action_probs + epsilon), dim=-1)
+        
+        # Maximum entropy for uniform distribution over num_stocks
+        max_entropy = torch.log(torch.tensor(action_probs.shape[-1], dtype=torch.float32))
+        
+        # Normalize entropy to [0, 1] range
+        normalized_entropy = entropy / max_entropy
+        
+        # Diversity bonus: reward high entropy (more diverse predictions)
+        # Subtract this from loss (so lower loss = better)
+        diversity_bonus = normalized_entropy.mean()
+        
+        # CONCENTRATION PENALTY: Extra penalty when model puts >90% on single stock
+        max_prob = torch.max(action_probs, dim=-1)[0]  # [batch_size]
+        concentration_penalty = torch.relu(max_prob - 0.9) ** 2  # Quadratic penalty above 90%
+        
         # Loss = negative expected return (maximize return = minimize negative return)
-        loss = -enhanced_returns.mean()
+        #        - diversity bonus (encourage spreading)
+        #        + concentration penalty (discourage >90% on one stock)
+        loss = -enhanced_returns.mean() - (self.diversity_weight * diversity_bonus) + (0.5 * concentration_penalty.mean())
         
         return loss
 
@@ -205,16 +229,35 @@ class TrainingSystem:
         
         return future_returns
     
-    def train_model(self, start_date: str = "2010-01-01", end_date: str = "2024-01-01", epochs: int = 150):
+    def train_model(self, start_date: str = "2010-01-01", end_date: str = "2024-01-01", epochs: int = 150, use_cached_data: bool = True):
         """Train the transformer on historical market data using profit optimization with stock shuffling."""
         print("Training transformer stock trader with profit maximization + stock shuffling...")
         print("Using 60-day price sequences (pure sequence learning like GPT)")
         
-        # Download and process training data
-        raw_market_data = self.data_processor.download_market_data(start_date, end_date)
-        price_sequences = self.data_processor.extract_price_sequences(raw_market_data)  # [days, stocks, 6]
+        # Load cached data if available
+        if use_cached_data:
+            import pickle
+            cache_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'training_data_2000_2024.pkl')
+            if os.path.exists(cache_path):
+                print(f"\n📦 Loading cached data from: {cache_path}")
+                with open(cache_path, 'rb') as f:
+                    cached = pickle.load(f)
+                raw_market_data = cached['raw_data']
+                price_sequences = cached['price_sequences']
+                print(f"✅ Loaded cached data: {cached['start_date']} to {cached['end_date']}")
+                print(f"   Downloaded: {cached['download_timestamp']}")
+            else:
+                print(f"⚠️  No cached data found at {cache_path}, downloading...")
+                use_cached_data = False
+        
+        # Download if not using cache
+        if not use_cached_data:
+            print("\n📥 Downloading market data...")
+            raw_market_data = self.data_processor.download_market_data(start_date, end_date)
+            price_sequences = self.data_processor.extract_price_sequences(raw_market_data)  # [days, stocks, 6]
         
         # Calculate actual future returns for all stocks
+        print("\n📊 Calculating future returns...")
         future_returns = self.calculate_future_returns(raw_market_data)
         
         # Prepare training sequences (60-day windows)
@@ -242,7 +285,10 @@ class TrainingSystem:
         
         # Training loop with profit-based loss and stock shuffling
         optimizer = optim.Adam(self.model.parameters(), lr=8e-5)
-        loss_function = EnhancedProfitLoss(loss_penalty_factor=1.0)  # Equal treatment of gains/losses
+        loss_function = EnhancedProfitLoss(
+            loss_penalty_factor=1.0,  # Equal treatment of gains/losses
+            diversity_weight=0.01     # Diversity penalty weight (reduced from 0.1 - less aggressive)
+        )
         
         self.model.train()
         num_epochs = epochs
@@ -252,6 +298,9 @@ class TrainingSystem:
         
         print(f"\n🔥 Starting training: {num_epochs} epochs, {num_batches} batches/epoch")
         print(f"📦 Batch size: {batch_size} (optimized for {'GPU' if torch.cuda.is_available() else 'CPU'})")
+        print(f"🎯 Diversity penalty: ENABLED (weight={loss_function.diversity_weight})")
+        print(f"   - Entropy bonus: Rewards spreading predictions across stocks")
+        print(f"   - Concentration penalty: Penalizes >90% confidence on single stock")
         print("─" * 60)
         
         best_return = float('-inf')
@@ -259,6 +308,7 @@ class TrainingSystem:
         
         for epoch in range(num_epochs):
             epoch_losses = []
+            epoch_max_probs = []  # Track maximum probability (concentration)
             epoch_start = datetime.now()
             
             # Shuffle training data each epoch
@@ -288,6 +338,12 @@ class TrainingSystem:
                 # Calculate profit-based loss on shuffled returns
                 loss = loss_function(decision_logits, batch_y_shuffled)
                 
+                # Track diversity metrics
+                with torch.no_grad():
+                    probs = F.softmax(decision_logits, dim=-1)
+                    max_prob = torch.max(probs, dim=-1)[0].mean().item()
+                    epoch_max_probs.append(max_prob)
+                
                 # Backward pass
                 loss.backward()
                 optimizer.step()
@@ -297,6 +353,7 @@ class TrainingSystem:
             # Calculate metrics
             avg_loss = np.mean(epoch_losses)
             avg_return = -avg_loss
+            avg_max_prob = np.mean(epoch_max_probs)  # Average concentration
             epoch_time = (datetime.now() - epoch_start).total_seconds()
             
             # Track best performance
@@ -310,6 +367,7 @@ class TrainingSystem:
             
             print(f"Epoch {epoch:3d}/{num_epochs} │ Return: {avg_return*100:+6.2f}% │ "
                   f"Best: {best_return*100:+6.2f}% (ep {best_epoch:3d}) │ "
+                  f"MaxP: {avg_max_prob*100:5.1f}% │ "
                   f"Time: {epoch_time:4.1f}s │ ETA: {eta/60:4.1f}m")
         
         # Save trained model to models directory
@@ -346,14 +404,26 @@ class TrainingSystem:
         # Get recent market data leading up to prediction date (need 60 days now)
         start_date = (datetime.strptime(target_date, "%Y-%m-%d") - timedelta(days=90)).strftime("%Y-%m-%d")
         
-        # Check cache before downloading
-        if (self._cached_data is not None and 
-            self._cache_start and self._cache_end and
-            start_date >= self._cache_start and target_date <= self._cache_end):
-            # Use cached data
-            raw_market_data = self._cached_data.loc[start_date:target_date]
+        # Check cache before downloading - be more flexible with cache usage
+        if self._cached_data is not None and self._cache_start and self._cache_end:
+            # Use cache if target date is within cache range (allow flexible start)
+            if target_date <= self._cache_end:
+                try:
+                    # Use whatever data is available in cache
+                    raw_market_data = self._cached_data.loc[:target_date]
+                    # Make sure we have at least some data
+                    if len(raw_market_data) < 60:
+                        print(f"⚠️  Cache has insufficient data, downloading...")
+                        raw_market_data = self.data_processor.download_market_data(start_date, target_date)
+                except Exception as e:
+                    # Fall back to download if cache lookup fails
+                    print(f"⚠️  Cache lookup failed: {e}, downloading...")
+                    raw_market_data = self.data_processor.download_market_data(start_date, target_date)
+            else:
+                # Target date outside cache range
+                raw_market_data = self.data_processor.download_market_data(start_date, target_date)
         else:
-            # Download fresh data
+            # No cache available
             raw_market_data = self.data_processor.download_market_data(start_date, target_date)
         
         # Extract price sequences instead of technical features

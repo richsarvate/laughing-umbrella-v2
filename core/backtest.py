@@ -5,38 +5,63 @@ Backtest the model with 5-day trading cycles
 
 import argparse
 import os
+import pickle
 import torch
 import yfinance as yf
 import pandas as pd
 from datetime import datetime, timedelta
 from training_system import TrainingSystem
 
-def get_price(ticker, date, preloaded_data=None):
-    """Get stock price for a specific date."""
+def is_trading_day(date):
+    """Check if a date is a trading day (not weekend)."""
+    date_obj = datetime.strptime(date, "%Y-%m-%d") if isinstance(date, str) else date
+    # Monday = 0, Sunday = 6
+    return date_obj.weekday() < 5  # Monday-Friday
+
+def get_next_trading_day(date):
+    """Get the next available trading day."""
+    date_obj = datetime.strptime(date, "%Y-%m-%d") if isinstance(date, str) else date
+    
+    # Skip to next Monday if weekend
+    while date_obj.weekday() >= 5:  # Saturday or Sunday
+        date_obj += timedelta(days=1)
+    
+    return date_obj.strftime("%Y-%m-%d")
+
+def get_price(ticker, date, preloaded_data=None, max_lookback=5):
+    """Get stock price for a specific date, with fallback to previous trading days."""
     try:
-        if preloaded_data is not None and ticker in preloaded_data.columns.get_level_values(1):
-            # Use preloaded data
-            price_data = preloaded_data['Close'][ticker]
-            if date in price_data.index:
-                price = price_data.loc[date]
-                return float(price) if not pd.isna(price) else None
+        # Make sure we're looking at a trading day
+        date = get_next_trading_day(date)
         
-        # Fallback to yfinance download
-        data = yf.download(ticker, start=date, 
-                          end=(datetime.strptime(date, "%Y-%m-%d") + timedelta(days=2)).strftime("%Y-%m-%d"), 
-                          progress=False)
-        if data.empty:
-            return None
+        if preloaded_data is not None:
+            # Check if ticker exists in the multi-index structure
+            # Data format is (Ticker, Price) like ('BLK', 'Close')
+            if (ticker, 'Close') in preloaded_data.columns:
+                # Use preloaded data
+                price_data = preloaded_data[(ticker, 'Close')]
+                
+                # Try the exact date first
+                if date in price_data.index:
+                    price = price_data.loc[date]
+                    if not pd.isna(price):
+                        return float(price)
+                
+                # Try looking back up to max_lookback trading days for holidays
+                date_obj = datetime.strptime(date, "%Y-%m-%d")
+                for i in range(1, max_lookback + 1):
+                    lookback_date = date_obj - timedelta(days=i)
+                    # Skip weekends
+                    if lookback_date.weekday() >= 5:
+                        continue
+                    lookback_str = lookback_date.strftime("%Y-%m-%d")
+                    if lookback_str in price_data.index:
+                        price = price_data.loc[lookback_str]
+                        if not pd.isna(price):
+                            return float(price)
         
-        if isinstance(data.columns, pd.MultiIndex):
-            data.columns = data.columns.get_level_values(0)
-        
-        if 'Close' not in data.columns:
-            return None
-            
-        price = data['Close'].iloc[0]
-        return float(price) if not pd.isna(price) else None
-    except:
+        return None
+    except Exception as e:
         return None
 
 def main():
@@ -55,18 +80,35 @@ def main():
     # Create training system and preload data
     training_system = TrainingSystem()
     
-    # Preload data (need extra days before start for model input)
+    # For predictions, use cached data if available
+    cache_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'backtest_2025.pkl')
+    if os.path.exists(cache_path):
+        print("📦 Loading cached backtest data for predictions...")
+        with open(cache_path, 'rb') as f:
+            cached = pickle.load(f)
+        print(f"✅ Loaded cached data: {cached['start_date']} to {cached['end_date']}")
+        
+        # Set the cached data in training system for predictions
+        # But we need to get the properly structured raw data
+        training_system._cached_data = None  # Don't use the malformed cache
+    else:
+        print("📊 No cached data found")
+    
+    # For price lookups, download fresh data with proper structure
+    print("� Downloading price data for profit calculation...")
+    sp500_tickers = training_system.data_processor._get_sp500_tickers()
     preload_start = (datetime.strptime(args.start, "%Y-%m-%d") - timedelta(days=90)).strftime("%Y-%m-%d")
     preload_end = (datetime.strptime(args.end, "%Y-%m-%d") + timedelta(days=10)).strftime("%Y-%m-%d")
     
-    print("📊 Preloading market data (avoids repeated downloads)...")
-    training_system.preload_data(preload_start, preload_end)
+    # Use the training system's data processor to get properly formatted data
+    price_data_raw = training_system.data_processor.download_market_data(preload_start, preload_end)
     
-    # Also preload price data for the backtest period
-    print("📈 Preloading price data for profit calculation...")
-    sp500_tickers = training_system.data_processor._get_sp500_tickers()
-    price_data = yf.download(sp500_tickers, start=args.start, end=preload_end, progress=False)
-    print("✅ All data preloaded!\n")
+    # Set this as the cache for predictions
+    training_system._cached_data = price_data_raw
+    training_system._cache_start = preload_start
+    training_system._cache_end = preload_end
+    
+    print("✅ All data ready!\n")
     
     # Load the trained model
     model_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'models', 'trained_stock_trader.pth')
@@ -80,12 +122,23 @@ def main():
     current_date = datetime.strptime(args.start, "%Y-%m-%d")
     end_date = datetime.strptime(args.end, "%Y-%m-%d")
     
+    # Make sure we start on a trading day
+    if current_date.weekday() >= 5:
+        current_date_str = get_next_trading_day(current_date)
+        current_date = datetime.strptime(current_date_str, "%Y-%m-%d")
+    
     all_trades = []
     cycle_num = 0
+    skipped_cycles = 0
     
     while current_date <= end_date:
         cycle_num += 1
         date_str = current_date.strftime("%Y-%m-%d")
+        
+        # Skip weekends
+        if not is_trading_day(date_str):
+            current_date += timedelta(days=1)
+            continue
         
         print(f"{'='*60}")
         print(f"🔄 Cycle {cycle_num}: {date_str}")
@@ -112,7 +165,7 @@ def main():
         
         print(f"\n💵 Buying ${per_stock_investment:,.2f} of each stock...")
         for stock in top_n_stocks:
-            buy_price = get_price(stock, date_str, price_data)
+            buy_price = get_price(stock, date_str, price_data_raw)
             if buy_price is None:
                 print(f"   ❌ {stock}: Price not available")
                 continue
@@ -129,35 +182,32 @@ def main():
         
         if not positions:
             print("   ⚠️  No valid positions, skipping cycle")
+            skipped_cycles += 1
             current_date += timedelta(days=args.hold_days)
             continue
         
-        # Sell after hold period
+        # Calculate actual sell date (skip weekends and add buffer for holidays)
         sell_date = current_date + timedelta(days=args.hold_days)
-        sell_date_str = sell_date.strftime("%Y-%m-%d")
+        sell_date_str = get_next_trading_day(sell_date)
         
-        print(f"\n💰 Selling on {sell_date_str} after {args.hold_days}-day hold...")
+        print(f"\n💰 Selling on {sell_date_str} after ~{args.hold_days}-day hold...")
         
         cycle_pnl = 0
+        valid_sells = 0
         for pos in positions:
-            sell_price = get_price(pos['stock'], sell_date_str, price_data)
-            if sell_price is None:
-                # Try next available day
-                for offset in range(1, 5):
-                    alt_date = (sell_date + timedelta(days=offset)).strftime("%Y-%m-%d")
-                    sell_price = get_price(pos['stock'], alt_date, price_data)
-                    if sell_price is not None:
-                        sell_date_str = alt_date
-                        break
+            sell_price = get_price(pos['stock'], sell_date_str, price_data_raw, max_lookback=10)
             
             if sell_price is None:
-                print(f"   ❌ {pos['stock']}: Could not get sell price")
+                print(f"   ⚠️  {pos['stock']}: Could not get sell price (skipping)")
+                # Return capital for failed sell
+                portfolio_value += pos['investment']
                 continue
             
             proceeds = pos['shares'] * sell_price
             pnl = proceeds - pos['investment']
             pnl_pct = (pnl / pos['investment']) * 100
             cycle_pnl += pnl
+            valid_sells += 1
             
             trade = {
                 'cycle': cycle_num,
@@ -177,12 +227,17 @@ def main():
             emoji = "📈" if pnl >= 0 else "📉"
             print(f"   {emoji} {pos['stock']}: ${pos['buy_price']:.2f} → ${sell_price:.2f} = {pnl_pct:+.2f}% (${pnl:+.2f})")
         
-        portfolio_value += cycle_pnl
-        print(f"\n💼 Cycle P&L: ${cycle_pnl:+.2f}")
-        print(f"💰 Portfolio Value: ${portfolio_value:,.2f}\n")
+        if valid_sells > 0:
+            portfolio_value += cycle_pnl
+            print(f"\n💼 Cycle P&L: ${cycle_pnl:+.2f}")
+            print(f"💰 Portfolio Value: ${portfolio_value:,.2f}\n")
+        else:
+            print(f"\n⚠️  No valid sells in this cycle\n")
         
-        # Move to next cycle
-        current_date = sell_date + timedelta(days=1)
+        # Move to next cycle (skip to next trading day)
+        current_date = datetime.strptime(sell_date_str, "%Y-%m-%d") + timedelta(days=1)
+        current_date_str = get_next_trading_day(current_date)
+        current_date = datetime.strptime(current_date_str, "%Y-%m-%d")
     
     # Final summary
     print(f"\n{'='*60}")
@@ -197,6 +252,7 @@ def main():
     print(f"Total P&L:           ${total_pnl:+,.2f}")
     print(f"Total Return:        {total_return:+.2f}%")
     print(f"Number of Cycles:    {cycle_num}")
+    print(f"Skipped Cycles:      {skipped_cycles}")
     print(f"Total Trades:        {len(all_trades)}")
     
     if all_trades:

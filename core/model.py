@@ -11,37 +11,38 @@ from transformers import GPT2Config, GPT2Model
 class TransformerStockTrader(nn.Module):
     """Minimal transformer model for unified stock trading decisions."""
     
-    def __init__(self, num_stocks: int = 500, features_per_stock: int = 6, hidden_size: int = 512):
+    def __init__(self, num_stocks: int = 500, features_per_stock: int = 6, hidden_size: int = 256):
         super().__init__()
         self.num_stocks = num_stocks
         self.features_per_stock = features_per_stock
         
         # Input projection with dropout: [stocks * features] -> hidden_size
         self.input_projection = nn.Sequential(
-            nn.Dropout(0.15),  # Input dropout for noisy financial data
+            nn.Dropout(0.1),  # Reduced dropout for smaller model
             nn.Linear(num_stocks * features_per_stock, hidden_size)
         )
         
-        # Enhanced transformer config (4 layers, 8 attention heads)
+        # MEDIUM BRAIN: 4 layers, 8 heads, 256 hidden (balanced capacity)
+        # Moderate model = balance between learning capacity and generalization
         transformer_config = GPT2Config(
             vocab_size=1,  # Not used for our case
             n_positions=512,
             n_embd=hidden_size,
-            n_layer=4,
-            n_head=8,
-            resid_pdrop=0.2,
+            n_layer=4,  # Reduced from 8 to 4
+            n_head=8,   # Reduced from 12 to 8
+            resid_pdrop=0.1,  # Reduced dropout
             attn_pdrop=0.1,
         )
         self.transformer_backbone = GPT2Model(transformer_config)
         
-        # Stock selection head: directly choose best stock
+        # Stock selection head: simpler network to prevent overfitting
         num_total_choices = num_stocks  # One choice per stock
         self.unified_decision_head = nn.Sequential(
-            nn.Dropout(0.2),       # Input dropout to decision head
-            nn.Linear(hidden_size, 64),
+            nn.Dropout(0.15),
+            nn.Linear(hidden_size, 128),
             nn.ReLU(),
-            nn.Dropout(0.25),      # Increased dropout
-            nn.Linear(64, num_total_choices)
+            nn.Dropout(0.15),
+            nn.Linear(128, num_total_choices)
         )
         
     def forward(self, market_features: torch.Tensor) -> torch.Tensor:

@@ -1,0 +1,7 @@
+# Ignore cached data files (they're large and can be regenerated)
+*.pkl
+*.csv
+*.h5
+
+# Keep this directory
+!.gitignore

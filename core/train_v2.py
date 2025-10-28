@@ -1,6 +1,7 @@
 """
-Training Script V2 - 60-day price sequences with stock shuffling and validity masking
-Fixes position memorization problem and delisted stock selection
+Training Script V2 - 60-day price sequences with stock shuffling, validity masking, and DIVERSITY PENALTY
+Fixes position memorization problem, delisted stock selection, AND BLK overfitting!
+NEW: Diversity penalty prevents model from putting 99% confidence on a single stock
 """
 
 import argparse
@@ -28,13 +29,13 @@ if __name__ == "__main__":
         print("\n" + "=" * 50)
     else:
         epochs = 150
-        start_date = "2010-01-01" 
+        start_date = "2000-01-01" 
         end_date = "2024-01-01"
-        mode_name = "FULL TRAINING (2010-2024)"
+        mode_name = "FULL TRAINING (2000-2024)"
         print("=" * 70)
         print(f"TRAINING TRANSFORMER V2 - {mode_name}")
         print("=" * 70)
-        print(f"\n📅 Training Period: {start_date} to {end_date} (14 years)")
+        print(f"\n📅 Training Period: {start_date} to {end_date} (24 years)")
         print(f"⚡ Epochs: {epochs}")
         print(f"🚀 GPU Acceleration: ENABLED")
     
