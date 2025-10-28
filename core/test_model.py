@@ -23,18 +23,21 @@ def main():
     training_system = TrainingSystem()
     
     # Preload data for the test period to avoid repeated downloads
-    print("📊 Preloading market data for 2024...")
+    # Only use 2024 data since model was trained on everything before 2024-01-01
+    print("📊 Preloading market data for 2024 (test data only)...")
     training_system.preload_data("2023-09-01", "2024-12-31")
     print("✅ Data preloaded successfully!")
     
-    # Load the trained model
+    # Load the trained model (with CPU fallback for models trained on GPU)
     model_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'models', 'trained_stock_trader.pth')
-    training_system.model.load_state_dict(torch.load(model_path))
-    print("✅ Model loaded successfully!")
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    training_system.model.load_state_dict(torch.load(model_path, map_location=device))
+    training_system.model.to(device)
+    print(f"✅ Model loaded successfully on {device}!")
     
-    # Test prediction functionality
-    test_date = "2024-01-02"
-    print(f"\n🔮 Testing predictions for {test_date}...")
+    # Test prediction functionality on data after training period
+    test_date = "2024-01-02"  # First trading day after training cutoff
+    print(f"\n🔮 Testing predictions for {test_date} (out-of-sample data)...")
     
     try:
         # Use predict_action which now uses cached data
@@ -46,9 +49,9 @@ def main():
             print(f"   {i}. {stock}: {confidence:.4f}")
         
         if not args.quick:
-            # Test a few more dates for full test
-            additional_dates = ["2024-01-03", "2024-01-04", "2024-01-05"]
-            print(f"\n🔄 Testing additional dates...")
+            # Test a few more dates for full test (all from 2024, after training period)
+            additional_dates = ["2024-01-03", "2024-01-04", "2024-01-05", "2024-02-01", "2024-03-01"]
+            print(f"\n🔄 Testing additional dates (all out-of-sample)...")
             
             for date in additional_dates:
                 try:

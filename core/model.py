@@ -11,7 +11,7 @@ from transformers import GPT2Config, GPT2Model
 class TransformerStockTrader(nn.Module):
     """Minimal transformer model for unified stock trading decisions."""
     
-    def __init__(self, num_stocks: int = 500, features_per_stock: int = 6, hidden_size: int = 256):
+    def __init__(self, num_stocks: int = 500, features_per_stock: int = 6, hidden_size: int = 512):
         super().__init__()
         self.num_stocks = num_stocks
         self.features_per_stock = features_per_stock
@@ -22,13 +22,13 @@ class TransformerStockTrader(nn.Module):
             nn.Linear(num_stocks * features_per_stock, hidden_size)
         )
         
-        # Minimal transformer config (2 layers, 4 attention heads)
+        # Enhanced transformer config (4 layers, 8 attention heads)
         transformer_config = GPT2Config(
             vocab_size=1,  # Not used for our case
             n_positions=512,
             n_embd=hidden_size,
-            n_layer=2,
-            n_head=4,
+            n_layer=4,
+            n_head=8,
             resid_pdrop=0.2,
             attn_pdrop=0.1,
         )

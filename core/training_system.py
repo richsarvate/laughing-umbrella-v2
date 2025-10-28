@@ -338,8 +338,10 @@ class TrainingSystem:
         if model_path is None:
             model_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'models', 'trained_stock_trader.pth')
             
-        # Load trained model
-        self.model.load_state_dict(torch.load(model_path))
+        # Load trained model (with CPU fallback for models trained on GPU)
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.model.load_state_dict(torch.load(model_path, map_location=device))
+        self.model.to(device)
         
         # Get recent market data leading up to prediction date (need 60 days now)
         start_date = (datetime.strptime(target_date, "%Y-%m-%d") - timedelta(days=90)).strftime("%Y-%m-%d")
