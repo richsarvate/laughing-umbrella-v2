@@ -96,18 +96,21 @@ class MarketDataProcessor:
     
     def extract_price_sequences(self, market_data: pd.DataFrame) -> np.ndarray:
         """
-        Extract normalized price sequences with validity masks and volume.
+        Extract normalized OHLCV sequences with validity masks.
         
-        Returns: [days, stocks, 3] - normalized prices + validity mask + normalized volume
-                 Feature 0: normalized price
-                 Feature 1: validity mask (1=valid data, 0=no data/delisted)
-                 Feature 2: log-normalized volume (preserves relative stock size)
+        Returns: [days, stocks, 6] - OHLCV + validity mask + normalized volume
+                 Feature 0: normalized open price
+                 Feature 1: normalized high price
+                 Feature 2: normalized low price
+                 Feature 3: normalized close price
+                 Feature 4: validity mask (1=valid data, 0=no data/delisted)
+                 Feature 5: log-normalized volume (preserves relative stock size)
         """
         num_stocks = len(self.sp500_tickers)
         num_days = len(market_data)
         
-        # Initialize price matrix: [days, stocks, 3] (price + mask + volume)
-        price_matrix = np.zeros((num_days, num_stocks, 3))
+        # Initialize price matrix: [days, stocks, 6] (OHLC + mask + volume)
+        price_matrix = np.zeros((num_days, num_stocks, 6))
         
         # First pass: collect all log-volumes for global normalization
         all_log_volumes = []
@@ -128,7 +131,10 @@ class MarketDataProcessor:
         # Second pass: process each stock with global normalization
         for i, ticker in enumerate(self.sp500_tickers):
             try:
-                # Extract price and volume series
+                # Extract OHLCV data
+                open_prices = market_data[ticker]['Open'].values
+                high_prices = market_data[ticker]['High'].values
+                low_prices = market_data[ticker]['Low'].values
                 close_prices = market_data[ticker]['Close'].values
                 volumes = market_data[ticker]['Volume'].values
                 
@@ -139,9 +145,25 @@ class MarketDataProcessor:
                 if len(close_prices) < 2 or not np.any(valid_mask):
                     continue
                 
-                # Normalize prices: percentage change from first valid price
+                # Normalize all prices: percentage change from first valid price
                 first_valid_price = close_prices[np.isfinite(close_prices)][0]
-                normalized_prices = np.where(
+                
+                normalized_open = np.where(
+                    valid_mask,
+                    (open_prices - first_valid_price) / first_valid_price,
+                    0.0
+                )
+                normalized_high = np.where(
+                    valid_mask,
+                    (high_prices - first_valid_price) / first_valid_price,
+                    0.0
+                )
+                normalized_low = np.where(
+                    valid_mask,
+                    (low_prices - first_valid_price) / first_valid_price,
+                    0.0
+                )
+                normalized_close = np.where(
                     valid_mask,
                     (close_prices - first_valid_price) / first_valid_price,
                     0.0
@@ -156,10 +178,13 @@ class MarketDataProcessor:
                     0.0
                 )
                 
-                # Store all features
-                price_matrix[:, i, 0] = normalized_prices
-                price_matrix[:, i, 1] = valid_mask
-                price_matrix[:, i, 2] = normalized_volumes
+                # Store all features: OHLC + validity + volume
+                price_matrix[:, i, 0] = normalized_open
+                price_matrix[:, i, 1] = normalized_high
+                price_matrix[:, i, 2] = normalized_low
+                price_matrix[:, i, 3] = normalized_close
+                price_matrix[:, i, 4] = valid_mask
+                price_matrix[:, i, 5] = normalized_volumes
                 
             except Exception as e:
                 print(f"Warning: Could not process {ticker}: {e}")

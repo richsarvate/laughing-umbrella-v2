@@ -10,22 +10,21 @@ if __name__ == "__main__":
     # Parse command line arguments
     parser = argparse.ArgumentParser(description="Train Stock Trading Transformer V2")
     parser.add_argument("--quick-test", action="store_true", 
-                       help="Run quick test (5 epochs, 1 year of data)")
+                       help="Run quick test (30 epochs, 5 years of data)")
     args = parser.parse_args()
     
     # Set parameters based on mode
     if args.quick_test:
-        epochs = 30
-        start_date = "2020-01-01"
+        epochs = 5
+        start_date = "2023-01-01"
         end_date = "2024-01-01"
         mode_name = "MEDIUM TRAINING"
         print("=" * 50)
         print(f"TRAINING TRANSFORMER V2 - {mode_name}")
         print("=" * 50)
         print("\nMedium training mode:")
-        print("  ⚡ 30 epochs (vs 150 full)")
-        print("  📅 2020-2024 data (5 years vs 14 years)")
-        print("  🔧 MacBook-friendly training time (~1-2 minutes)")
+        print("  ⚡ 5 epochs (vs 150 full)")
+        print("  📅 2023-2024 data (1 years vs 14 years)")
         print("\n" + "=" * 50)
     else:
         epochs = 150
@@ -35,12 +34,6 @@ if __name__ == "__main__":
         print("=" * 70)
         print(f"TRAINING TRANSFORMER V2 - {mode_name}")
         print("=" * 70)
-        print("\nNew features:")
-        print("  ✅ 60-day price sequences (was 30-day technical indicators)")
-        print("  ✅ Stock shuffling (prevents position memorization)")
-        print("  ✅ Validity masking (prevents delisted stock selection)")
-        print("  ✅ Pure sequence learning (like GPT)")
-        print("\n" + "=" * 70)
     
     # Initialize training system
     trainer = TrainingSystem()
@@ -53,7 +46,3 @@ if __name__ == "__main__":
     print("TRAINING COMPLETE!")
     print("=" * 70)
     print("\nModel saved to: core/trained_stock_trader.pth")
-    print("\nNext steps:")
-    print("  1. Run: python test_month.py")
-    print("  2. Check for diverse stock picks (not just ENPH/NI)")
-    print("  3. Verify portfolio returns")

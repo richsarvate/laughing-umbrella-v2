@@ -195,7 +195,7 @@ class TrainingSystem:
         
         # Download and process training data
         raw_market_data = self.data_processor.download_market_data(start_date, end_date)
-        price_sequences = self.data_processor.extract_price_sequences(raw_market_data)  # [days, stocks, 1]
+        price_sequences = self.data_processor.extract_price_sequences(raw_market_data)  # [days, stocks, 6]
         
         # Calculate actual future returns for all stocks
         future_returns = self.calculate_future_returns(raw_market_data)
@@ -212,7 +212,7 @@ class TrainingSystem:
             training_returns.append(returns)
         
         # Convert to tensors
-        X_train = torch.FloatTensor(np.array(training_sequences))  # [N, 60, stocks, 3]
+        X_train = torch.FloatTensor(np.array(training_sequences))  # [N, 60, stocks, 6]
         y_train = torch.FloatTensor(np.array(training_returns))    # [N, stocks]
         
         num_stocks = len(self.data_processor.sp500_tickers)
@@ -249,7 +249,7 @@ class TrainingSystem:
                 batch_indices = indices[batch_start:batch_end]
                 
                 # Get batch data
-                batch_X = X_train[batch_indices]  # [batch, 60, stocks, 1]
+                batch_X = X_train[batch_indices]  # [batch, 60, stocks, 6]
                 batch_y = y_train[batch_indices]  # [batch, stocks]
                 
                 # CRITICAL: Shuffle stock order for this batch
@@ -342,8 +342,8 @@ class TrainingSystem:
             raise ValueError(f"Insufficient data: only {len(price_sequences)} days available, need 60")
         
         # Get last 60 days and reshape properly
-        last_60_days = price_sequences[-60:]  # [60, stocks, 3]
-        input_sequence = last_60_days.reshape(1, 60, self.model.num_stocks, 3)  # [1, 60, stocks, 3]
+        last_60_days = price_sequences[-60:]  # [60, stocks, 6]
+        input_sequence = last_60_days.reshape(1, 60, self.model.num_stocks, 6)  # [1, 60, stocks, 6]
         input_tensor = torch.FloatTensor(input_sequence)
         
         # Use combined MC Dropout + Temperature Scaling inference
