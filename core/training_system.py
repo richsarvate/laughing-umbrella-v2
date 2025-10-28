@@ -62,7 +62,15 @@ class TrainingSystem:
         self.data_processor = MarketDataProcessor(lookback_days=60)  # Changed to 60 days
         # Use actual number of successfully downloaded stocks
         actual_num_stocks = len(self.data_processor.sp500_tickers)
-        self.model = TransformerStockTrader(num_stocks=actual_num_stocks)
+        
+        # Setup GPU acceleration
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        print(f"🚀 Using device: {self.device}")
+        if torch.cuda.is_available():
+            print(f"   GPU: {torch.cuda.get_device_name(0)}")
+            print(f"   Memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.2f} GB")
+        
+        self.model = TransformerStockTrader(num_stocks=actual_num_stocks).to(self.device)
         self.current_position = None  # Track current stock holding
         
         # Data cache for multiple predictions
@@ -83,6 +91,9 @@ class TrainingSystem:
         """
         self.model.train()  # Enable dropout
         predictions = []
+        
+        # Move input to GPU
+        input_tensor = input_tensor.to(self.device)
         
         with torch.no_grad():
             for _ in range(num_samples):
@@ -106,6 +117,9 @@ class TrainingSystem:
         """
         self.model.eval()  # Standard evaluation mode
         
+        # Move input to GPU
+        input_tensor = input_tensor.to(self.device)
+        
         with torch.no_grad():
             scaled_logits = self.model.forward_with_temperature(input_tensor, temperature=temperature)
             probs = torch.softmax(scaled_logits, dim=1)
@@ -126,6 +140,9 @@ class TrainingSystem:
         """
         self.model.train()  # Enable dropout for MC sampling
         predictions = []
+        
+        # Move input to GPU
+        input_tensor = input_tensor.to(self.device)
         
         with torch.no_grad():
             for _ in range(num_mc_samples):
@@ -211,9 +228,9 @@ class TrainingSystem:
             training_sequences.append(sequence)
             training_returns.append(returns)
         
-        # Convert to tensors
-        X_train = torch.FloatTensor(np.array(training_sequences))  # [N, 60, stocks, 6]
-        y_train = torch.FloatTensor(np.array(training_returns))    # [N, stocks]
+        # Convert to tensors and move to GPU
+        X_train = torch.FloatTensor(np.array(training_sequences)).to(self.device)  # [N, 60, stocks, 6]
+        y_train = torch.FloatTensor(np.array(training_returns)).to(self.device)    # [N, stocks]
         
         num_stocks = len(self.data_processor.sp500_tickers)
         print(f"Training on {len(X_train)} sequences with {num_stocks} stocks")
@@ -221,6 +238,7 @@ class TrainingSystem:
         print(f"Validity masking: ENABLED (prevents delisted stock selection)")
         print(f"Volume feature: ENABLED (log-normalized across all stocks)")
         print(f"Pure stock selection: No HOLD/CASH options (must pick a stock)")
+        print(f"Device: {self.device}")
         
         # Training loop with profit-based loss and stock shuffling
         optimizer = optim.Adam(self.model.parameters(), lr=8e-5)
@@ -228,10 +246,12 @@ class TrainingSystem:
         
         self.model.train()
         num_epochs = epochs
-        batch_size = 32
+        # Increase batch size for better GPU utilization
+        batch_size = 128 if torch.cuda.is_available() else 32
         num_batches = len(X_train) // batch_size
         
         print(f"\n🔥 Starting training: {num_epochs} epochs, {num_batches} batches/epoch")
+        print(f"📦 Batch size: {batch_size} (optimized for {'GPU' if torch.cuda.is_available() else 'CPU'})")
         print("─" * 60)
         
         best_return = float('-inf')
@@ -248,7 +268,7 @@ class TrainingSystem:
                 batch_end = min(batch_start + batch_size, len(X_train))
                 batch_indices = indices[batch_start:batch_end]
                 
-                # Get batch data
+                # Get batch data (already on GPU)
                 batch_X = X_train[batch_indices]  # [batch, 60, stocks, 6]
                 batch_y = y_train[batch_indices]  # [batch, stocks]
                 

@@ -30,10 +30,13 @@ if __name__ == "__main__":
         epochs = 150
         start_date = "2010-01-01" 
         end_date = "2024-01-01"
-        mode_name = "FULL TRAINING"
+        mode_name = "FULL TRAINING (2010-2024)"
         print("=" * 70)
         print(f"TRAINING TRANSFORMER V2 - {mode_name}")
         print("=" * 70)
+        print(f"\n📅 Training Period: {start_date} to {end_date} (14 years)")
+        print(f"⚡ Epochs: {epochs}")
+        print(f"🚀 GPU Acceleration: ENABLED")
     
     # Initialize training system
     trainer = TrainingSystem()
